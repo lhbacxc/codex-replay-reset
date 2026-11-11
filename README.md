@@ -20,7 +20,7 @@ CC Switch local proxy failed while handling Codex endpoint /responses. Provider:
 
 1. 安装并运行 Codex++，在 CC Switch 中开启 Codex 路由。
 2. 从 [Releases](https://github.com/lhbacxc/codex-replay-reset/releases) 下载 `codex-replay-reset-版本号.zip`。
-3. 解压到名为 `codex-replay-reset` 的目录，再放入 **Codex++ 管理器显示的本地拓展目录**。文件结构应为 `./codex-replay-reset/codexpp.json`，不要多套一层目录。
+3. 解压到名为 `codex-replay-reset` 的目录，再放入 **Codex++ 管理器显示的本地拓展目录（一般是 C:/Users/用户名/AppData/Roaming/Codex++/user_scripts 文件夹）**。文件结构应为 `./user_scripts/codex-replay-reset/codexpp.json`，不要多套一层目录。
 4. 在 Codex++“本地拓展”中启用“旧回放重置”，点击“热重载”。
 
 需要支持 Node.js 20 或以上的拓展后台运行环境。新安装时运行状态为空，每位用户分别在自己的电脑接入代理。
