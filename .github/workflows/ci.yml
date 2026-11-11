@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node: [20, 24]
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: 测试、语法检查与打包
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding
+          $PSDefaultParameterValues['*:Encoding'] = 'UTF8'
+          npm test
+          if ($LASTEXITCODE -ne 0) { throw '测试失败' }
+          npm run check
+          if ($LASTEXITCODE -ne 0) { throw '语法检查失败' }
+          npm run package
+          if ($LASTEXITCODE -ne 0) { throw '打包失败' }

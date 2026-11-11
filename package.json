@@ -1,0 +1,16 @@
+{
+  "name": "codex-replay-reset",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Codex++ 的 CC Switch / AgentRouter 旧回放清理拓展",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/replay-reset.test.mjs test/busy.test.mjs test/renderer.test.mjs test/session-state.test.mjs",
+    "check": "node scripts/check.mjs",
+    "package": "pwsh -NoProfile -File ./scripts/package.ps1"
+  },
+  "license": "MIT"
+}

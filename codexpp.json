@@ -1,0 +1,30 @@
+{
+  "id": "codex-replay-reset",
+  "name": "旧回放重置",
+  "version": "0.1.1",
+  "description": "为经过 CC Switch 路由的 AgentRouter Responses 会话清理不兼容的旧回放，保留聊天历史。",
+  "engines": {
+    "codexpp": 1
+  },
+  "renderer": [
+    "renderer.js"
+  ],
+  "permissions": {
+    "routes": []
+  },
+  "config": {
+    "port": {
+      "type": "number",
+      "title": "清理代理端口（更改前先解除接入）",
+      "default": 18761,
+      "min": 1024,
+      "max": 65535
+    }
+  },
+  "backend": {
+    "script": "backend/main.mjs"
+  },
+  "launch": {
+    "before": "launch/before.mjs"
+  }
+}
