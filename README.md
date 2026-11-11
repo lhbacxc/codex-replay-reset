@@ -1,8 +1,8 @@
 # Codex 旧回放重置
 
-为 **Codex++ + CC Switch 路由 + AgentRouter Responses** 提供手动旧回放重置，保留本地聊天历史，尝试恢复上游资源切换后的原会话续聊。
+为 **Codex++ + CC Switch 路由中的 OpenAI Responses 会话**提供手动旧回放重置，保留本地聊天历史，处理上游资源切换后的旧资源绑定错误，恢复原会话续聊。
 
-典型错误：
+典型错误（以下为 AgentRouter 测试场景）：
 
 ```text
 CC Switch local proxy failed while handling Codex endpoint /responses. Provider: Agent Router; model: gpt-6.1-sol; upstream_status: HTTP 400; cause: OpenAI Responses bad request: The requested item was created under a different *** OpenAI resource. Use the same resource that created the item to access it. [hub-] [trace_id=b900c08ad8fbb7c936a64dff8ea650f6]
@@ -12,7 +12,7 @@ CC Switch local proxy failed while handling Codex endpoint /responses. Provider:
 
 ## 简单原理
 
-续聊时，Codex 会把历史消息及推理回放一并发送给上游。如果 AgentRouter 切换了上游资源，旧回放仍可能带有原资源生成的推理数据和条目 ID；新资源无法使用这些旧条目，于是返回上述 HTTP 400 错误。
+续聊时，Codex 会把历史消息及推理回放一并发送给上游。当中转路由、API 接口或上游资源发生切换，旧回放仍可能带有原资源生成的推理数据和条目 ID；新资源无法使用这些旧条目，于是返回上述 HTTP 400 错误。这个问题来自 Responses 回放条目与创建它的资源之间的绑定，不限定某一家中转站。
 
 点击“重置旧回放”后，拓展标记当前会话，在下一条完整请求中捕获旧回放的指纹，并清理匹配的旧推理回放和历史资源 ID，让当前资源根据保留的历史重新建立上下文。清理只发生在发出的请求副本中，本地聊天记录、可见文字、工具调用参数和结果，以及工具配对用的 `call_id` 都保留；后续新生成的回放也正常保留。
 
@@ -35,7 +35,7 @@ CC Switch local proxy failed while handling Codex endpoint /responses. Provider:
 侧栏会话行的“更多操作”里也有“重置旧回放”。点击只标记策略，不发送消息或重跑工具。已捕获的旧条目持续被识别，之后生成的新回放正常保留。
 
 ```text
-Codex → 本地回放清理代理 → CC Switch 路由 → AgentRouter
+Codex → 本地回放清理代理 → CC Switch 路由 → 上游 API 服务
 ```
 
 清理代理默认监听本机端口 `18761`，上游保持为接入时的 CC Switch 本地地址。接入只替换当前供应商配置中的 `base_url`；模型、鉴权字段、CC Switch 数据库和聊天文件保持原状。
@@ -52,6 +52,10 @@ Codex → 本地回放清理代理 → CC Switch 路由 → AgentRouter
 
 ## 适用范围
 
+本拓展基本适用于所有使用兼容 **OpenAI Responses 协议**、并出现上述旧资源绑定错误的中转站。判断依据是报错和请求格式，不取决于服务名称或它是否是中转站：其他网关或 API 服务出现同类错误，也可以使用本拓展进行重置，只需符合下述接入与历史格式要求。
+
+**已测试：AgentRouter 中转站，已在实际会话中确认重置功能成功。**
+
 - 运行在 Codex++ 的页面拓展中，面向 Windows 与 CC Switch 本地 `/v1` Responses HTTP 路由。
 - 仅处理所选会话，子代理和独立分叉分别操作。
 - 清理匹配的旧 reasoning 条目和历史资源 `id`，保留可见文字、工具参数与结果，以及 `call_id` 配对。
@@ -59,7 +63,7 @@ Codex → 本地回放清理代理 → CC Switch 路由 → AgentRouter
 - WebSocket 握手返回 HTTP 426，依赖 Codex 的 HTTP 回退能力；请求体上限为 128 MiB，重置暂不支持压缩请求体。
 - 余额不足、密钥无效、模型不存在和网络故障不属于重置范围。
 
-实际使用已确认功能成功；其他上游和不同协议形态仍需分别验证。完整实现与验证范围见 [技术说明](./docs/technical.md)，版本变化见 [更新记录](./CHANGELOG.md)。
+完整实现、接入条件与验证范围见 [技术说明](./docs/technical.md)，版本变化见 [更新记录](./CHANGELOG.md)。
 
 ## 源码与后续开发
 

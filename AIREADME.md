@@ -2,7 +2,7 @@
 
 ## 项目目标与入口
 
-这是 Codex++ 的旧回放重置拓展，串联 CC Switch 路由，在保留本地历史的情况下处理 AgentRouter Responses 的旧资源绑定错误。
+这是 Codex++ 的旧回放重置拓展，串联 CC Switch 路由，在保留本地历史的情况下处理兼容 OpenAI Responses 协议的旧资源绑定错误。按报错与请求格式判断适用性，不限定中转站品牌或是否为中转站；已测试 AgentRouter 并确认实际功能成功。
 
 开始工作时先读 [AGENTS.md](./AGENTS.md)、本文件和本次涉及的 [技术说明](./docs/technical.md)。用户行为以 [README.md](./README.md) 为准，设计背景见 [设计文档](./docs/design.md)。
 
