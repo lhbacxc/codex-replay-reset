@@ -5,10 +5,16 @@
 典型错误：
 
 ```text
-The requested item was created under a different Azure OpenAI resource
+CC Switch local proxy failed while handling Codex endpoint /responses. Provider: Agent Router; model: gpt-6.1-sol; upstream_status: HTTP 400; cause: OpenAI Responses bad request: The requested item was created under a different *** OpenAI resource. Use the same resource that created the item to access it. [hub-] [trace_id=b900c08ad8fbb7c936a64dff8ea650f6]
 ```
 
 本项目基于 [PopCorey/dsh-replay-reset](https://github.com/PopCorey/dsh-replay-reset) 的使用目标移植，运行逻辑针对 Codex++ 与 Codex Responses 重写。感谢原项目提供设计参考；来源和 MIT 许可见 [NOTICE](./NOTICE.md) 与 [LICENSE](./LICENSE)。
+
+## 简单原理
+
+续聊时，Codex 会把历史消息及推理回放一并发送给上游。如果 AgentRouter 切换了上游资源，旧回放仍可能带有原资源生成的推理数据和条目 ID；新资源无法使用这些旧条目，于是返回上述 HTTP 400 错误。
+
+点击“重置旧回放”后，拓展标记当前会话，在下一条完整请求中捕获旧回放的指纹，并清理匹配的旧推理回放和历史资源 ID，让当前资源根据保留的历史重新建立上下文。清理只发生在发出的请求副本中，本地聊天记录、可见文字、工具调用参数和结果，以及工具配对用的 `call_id` 都保留；后续新生成的回放也正常保留。
 
 ## 下载安装
 
